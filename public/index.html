@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Self Checkout - Guete Shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../src/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-logo">🍓</div>
+          <div class="brand-text">
+            <h1>Guete Shop - Self Checkout</h1>
+            <span>Toque, escolha, pague e retire</span>
+          </div>
+        </div>
+        <div class="order-info">
+          <span class="order-label">Pedido nº</span>
+          <span class="order-number" id="orderNumber">001</span>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section class="products-section">
+          <div class="products-header">
+            <h2>Selecione seus produtos</h2>
+            <div class="category-filters" id="categoryFilters">
+              <!-- Filtros gerados via JS -->
+            </div>
+          </div>
+
+          <div class="products-grid" id="productsGrid">
+            <!-- Cards gerados via JS -->
+          </div>
+        </section>
+
+        <aside class="cart-section">
+          <h2>Seu pedido</h2>
+          <div class="cart-items" id="cartItems">
+            <p class="cart-empty">Seu carrinho está vazio</p>
+          </div>
+
+          <div class="cart-footer">
+            <div class="cart-row">
+              <span>Itens:</span>
+              <span id="cartItemCount">0</span>
+            </div>
+            <div class="cart-row cart-total">
+              <span>Total:</span>
+              <span id="cartTotal">R$ 0,00</span>
+            </div>
+            <button class="btn-primary" id="checkoutButton" disabled>
+              Finalizar pedido
+            </button>
+          </div>
+        </aside>
+      </main>
+
+      <!-- Modal de checkout -->
+      <div class="modal-backdrop" id="checkoutModal">
+        <div class="modal">
+          <h2>Finalizar pedido</h2>
+          <p class="modal-subtitle">
+            Preencha os dados abaixo para concluir seu pedido.
+          </p>
+
+          <form id="checkoutForm">
+            <div class="form-group">
+              <label for="customerName">Seu nome</label>
+              <input
+                type="text"
+                id="customerName"
+                placeholder="Ex: João da Silva"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="orderNote">Observações (opcional)</label>
+              <textarea
+                id="orderNote"
+                rows="3"
+                placeholder="Ex: tirar a cebola, pouco gelo, etc."
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="pickupOption">Retirada</label>
+              <select id="pickupOption">
+                <option value="balcão">Retirar no balcão</option>
+                <option value="mesa">Entregar na mesa</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="tableNumberGroup" style="display: none">
+              <label for="tableNumber">Número da mesa</label>
+              <input
+                type="number"
+                id="tableNumber"
+                min="1"
+                placeholder="Ex: 12"
+              />
+            </div>
+
+            <div class="modal-summary">
+              <div class="modal-summary-row">
+                <span>Itens:</span>
+                <span id="modalItemCount">0</span>
+              </div>
+              <div class="modal-summary-row modal-summary-total">
+                <span>Total a pagar:</span>
+                <span id="modalTotalAmount">R$ 0,00</span>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" id="cancelCheckout">
+                Voltar
+              </button>
+              <button type="submit" class="btn-primary">
+                Confirmar pedido
+              </button>
+            </div>
+          </form>
+
+          <div class="order-result" id="orderResult" style="display: none">
+            <h3>Pedido registrado!</h3>
+            <p>Texto do pedido (para WhatsApp/sistema interno):</p>
+            <textarea id="orderText" rows="6" readonly></textarea>
+            <button type="button" class="btn-outline" id="copyOrderTextButton">
+              Copiar pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../src/app.js"></script>
+  </body>
+</html>
