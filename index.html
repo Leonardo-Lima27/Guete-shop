@@ -9,18 +9,24 @@
   <body>
     <div class="app">
       <header class="app-header">
-        <div class="brand">
-          <div class="brand-logo">🍓</div>
-          <div class="brand-text">
-            <h1>Guete Shop - Self Checkout</h1>
-            <span>Toque, escolha, pague e retire</span>
-          </div>
-        </div>
-        <div class="order-info">
-          <span class="order-label">Pedido nº</span>
-          <span class="order-number" id="orderNumber">001</span>
-        </div>
-      </header>
+  <div class="brand">
+    <div class="brand-logo">🍓</div>
+    <div class="brand-text">
+      <h1>Guete-shop</h1>
+      <span>Toque, escolha, pague e retire</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="order-info">
+      <span class="order-label">Pedido nº</span>
+      <span class="order-number" id="orderNumber">001</span>
+    </div>
+    <button class="btn-outline header-orders-button" id="openOrdersButton">
+      Meus pedidos
+    </button>
+  </div>
+</header>
 
       <main class="app-main">
         <section class="products-section">
@@ -58,84 +64,153 @@
         </aside>
       </main>
 
-      <!-- Modal de checkout -->
-      <div class="modal-backdrop" id="checkoutModal">
-        <div class="modal">
-          <h2>Finalizar pedido</h2>
-          <p class="modal-subtitle">
-            Preencha os dados abaixo para concluir seu pedido.
-          </p>
+<!-- Modal de checkout -->
+<div class="modal-backdrop" id="checkoutModal">
+  <div class="modal">
+    <header class="modal-header">
+      <h2>Finalizar pedido</h2>
+      <p class="modal-subtitle">
+        Preencha os dados abaixo para concluir seu pedido.
+      </p>
+    </header>
 
-          <form id="checkoutForm">
-            <div class="form-group">
-              <label for="customerName">Seu nome</label>
-              <input
-                type="text"
-                id="customerName"
-                placeholder="Ex: João da Silva"
-                required
-              />
-            </div>
+    <!-- VISÃO 1: FORMULÁRIO -->
+    <div class="modal-main" id="checkoutView">
+      <form id="checkoutForm">
+        <div class="form-group">
+          <label for="customerName">Seu nome</label>
+          <input
+            type="text"
+            id="customerName"
+            placeholder="Ex: João da Silva"
+            required
+          />
+        </div>
 
-            <div class="form-group">
-              <label for="orderNote">Observações (opcional)</label>
-              <textarea
-                id="orderNote"
-                rows="3"
-                placeholder="Ex: tirar a cebola, pouco gelo, etc."
-              ></textarea>
-            </div>
+        <div class="form-group">
+          <label for="orderNote">Observações (opcional)</label>
+          <textarea
+            id="orderNote"
+            rows="3"
+            placeholder="Ex: tirar a cebola, pouco gelo, etc."
+          ></textarea>
+        </div>
 
-            <div class="form-group">
-              <label for="pickupOption">Retirada</label>
-              <select id="pickupOption">
-                <option value="balcão">Retirar no balcão</option>
-                <option value="mesa">Entregar na mesa</option>
-              </select>
-            </div>
+        <div class="form-group">
+          <label for="pickupOption">Retirada</label>
+          <select id="pickupOption">
+            <option value="balcão">Retirar no balcão</option>
+            <option value="mesa">Entregar na mesa</option>
+          </select>
+        </div>
 
-            <div class="form-group" id="tableNumberGroup" style="display: none">
-              <label for="tableNumber">Número da mesa</label>
-              <input
-                type="number"
-                id="tableNumber"
-                min="1"
-                placeholder="Ex: 12"
-              />
-            </div>
+        <div class="form-group" id="tableNumberGroup" style="display:none;">
+          <label for="tableNumber">Número da mesa</label>
+          <input
+            type="number"
+            id="tableNumber"
+            min="1"
+            placeholder="Ex: 12"
+          />
+        </div>
 
-            <div class="modal-summary">
-              <div class="modal-summary-row">
-                <span>Itens:</span>
-                <span id="modalItemCount">0</span>
-              </div>
-              <div class="modal-summary-row modal-summary-total">
-                <span>Total a pagar:</span>
-                <span id="modalTotalAmount">R$ 0,00</span>
-              </div>
-            </div>
-
-            <div class="modal-actions">
-              <button type="button" class="btn-secondary" id="cancelCheckout">
-                Voltar
-              </button>
-              <button type="submit" class="btn-primary">
-                Confirmar pedido
-              </button>
-            </div>
-          </form>
-
-          <div class="order-result" id="orderResult" style="display: none">
-            <h3>Pedido registrado!</h3>
-            <p>Texto do pedido (para WhatsApp/sistema interno):</p>
-            <textarea id="orderText" rows="6" readonly></textarea>
-            <button type="button" class="btn-outline" id="copyOrderTextButton">
-              Copiar pedido
-            </button>
+        <div class="modal-summary">
+          <div class="modal-summary-row">
+            <span>Itens:</span>
+            <span id="modalItemCount">0</span>
+          </div>
+          <div class="modal-summary-row modal-summary-total">
+            <span>Total a pagar:</span>
+            <span id="modalTotalAmount">R$ 0,00</span>
           </div>
         </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelCheckout">
+            Voltar
+          </button>
+          <button type="submit" class="btn-primary">
+            Confirmar pedido
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- VISÃO 2: SUCESSO / RESUMO -->
+    <div class="modal-success" id="successView">
+      <div class="success-icon">✔</div>
+      <h3>Pedido registrado!</h3>
+      <p class="success-text">
+        Seu pedido foi registrado com sucesso. Use o botão abaixo para copiar os dados e enviar pelo WhatsApp.
+      </p>
+
+      <div class="success-summary">
+        <div class="success-row">
+          <span>Pedido:</span>
+          <span id="successOrderNumber">#000</span>
+        </div>
+        <div class="success-row">
+          <span>Cliente:</span>
+          <span id="successCustomerName">-</span>
+        </div>
+        <div class="success-row">
+          <span>Total:</span>
+          <span id="successTotal">R$ 0,00</span>
+        </div>
+        <div class="success-row">
+          <span>Retirada:</span>
+          <span id="successPickup">-</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-outline" id="copyOrderTextButton">
+          Copiar pedido
+        </button>
+        <button type="button" class="btn-primary" id="closeSuccess">
+          Fechar
+        </button>
+      </div>
+
+      <!-- textarea escondido, só pra copiar o texto completo -->
+      <textarea
+        id="orderText"
+        style="position:absolute;left:-9999px;opacity:0;width:0;height:0;"
+        readonly
+      ></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de histórico de pedidos -->
+<div class="modal-backdrop" id="ordersModal">
+  <div class="modal orders-modal">
+    <header class="modal-header">
+      <h2>Meus pedidos</h2>
+      <p class="modal-subtitle">
+        Histórico recente de pedidos registrados.
+      </p>
+    </header>
+
+    <div class="orders-layout">
+      <div class="orders-list" id="ordersList">
+        <!-- itens de histórico via JS -->
+      </div>
+
+      <div class="orders-detail" id="ordersDetail">
+        <p class="orders-empty">
+          Nenhum pedido registrado ainda.
+        </p>
       </div>
     </div>
+
+    <div class="modal-actions orders-actions">
+      <button type="button" class="btn-secondary" id="closeOrders">
+        Fechar
+      </button>
+    </div>
+  </div>
+</div>
 
     <script src="./app.js"></script>
   </body>

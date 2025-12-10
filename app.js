@@ -16,6 +16,7 @@ const PRODUCTS = [
     category: "combos",
     icon: "🍓",
     tag: "Mais pedido",
+    featured: true,
   },
   {
     id: 2,
@@ -116,6 +117,8 @@ const PRODUCTS = [
 // Estado do carrinho
 let cart = {};
 let currentCategory = "todos";
+let lastOrderText = "";
+let ordersHistory = [];
 
 // Utils
 const formatCurrency = (value) =>
@@ -138,6 +141,16 @@ const getOrderNumber = () => {
   const current = parseInt(localStorage.getItem(key) || "0", 10) + 1;
   localStorage.setItem(key, current);
   return String(current).padStart(3, "0");
+};
+
+const formatDateTime = (date) => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const day = d.toLocaleDateString("pt-BR");
+  const time = d.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${day} às ${time}`;
 };
 
 // RENDERIZAÇÃO DE FILTROS
@@ -177,8 +190,8 @@ const renderProducts = () => {
 
   productsToShow.forEach((product) => {
     const card = document.createElement("article");
-    card.className = "product-card";
-    card.addEventListener("click", () => addToCart(product.id));
+    card.className =
+      "product-card" + (product.featured ? " product-card-featured" : "");
 
     card.innerHTML = `
       ${product.tag ? `<div class="product-tag">${product.tag}</div>` : ""}
@@ -295,15 +308,27 @@ const openCheckoutModal = () => {
   document.getElementById("modalTotalAmount").textContent =
     formatCurrency(total);
 
-  // mostra o formulário de novo e esconde o resultado
-  const checkoutForm = document.getElementById("checkoutForm");
-  const orderResult = document.getElementById("orderResult");
+  // limpa campos
+  document.getElementById("customerName").value = "";
+  document.getElementById("orderNote").value = "";
+  document.getElementById("tableNumber").value = "";
+  const pickupOption = document.getElementById("pickupOption");
+  const tableNumberGroup = document.getElementById("tableNumberGroup");
+  pickupOption.value = "balcão";
+  tableNumberGroup.style.display = "none";
 
-  checkoutForm.style.display = "block";
-  orderResult.style.display = "none";
+  // mostra view de checkout e esconde view de sucesso
+  const checkoutView = document.getElementById("checkoutView");
+  const successView = document.getElementById("successView");
+  checkoutView.style.display = "block";
+  successView.classList.remove("active");
 
   modal.classList.add("open");
-  modal.querySelector(".modal")?.scrollTo?.(0, 0);
+
+  const modalElement = document.querySelector(".modal");
+  if (modalElement && modalElement.scrollTo) {
+    modalElement.scrollTo(0, 0);
+  }
 };
 
 const closeCheckoutModal = () => {
@@ -357,9 +382,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableNumberGroup = document.getElementById("tableNumberGroup");
   const copyOrderTextButton = document.getElementById("copyOrderTextButton");
   const orderResult = document.getElementById("orderResult");
+  const closeSuccess = document.getElementById("closeSuccess");
+  const openOrdersButton = document.getElementById("openOrdersButton");
+  const ordersModal = document.getElementById("ordersModal");
+  const closeOrders = document.getElementById("closeOrders");
 
   checkoutButton.addEventListener("click", openCheckoutModal);
   cancelCheckout.addEventListener("click", closeCheckoutModal);
+
+  closeSuccess.addEventListener("click", () => {
+    closeCheckoutModal();
+  });
 
   modalBackdrop.addEventListener("click", (e) => {
     if (e.target === modalBackdrop) {
@@ -380,39 +413,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const name = document.getElementById("customerName").value.trim();
     const note = document.getElementById("orderNote").value.trim();
+    const pickupOption = document.getElementById("pickupOption");
     const pickup = pickupOption.value;
     const tableNumber = document.getElementById("tableNumber").value.trim();
 
     if (!name) return;
 
+    const { total } = calculateCartTotals();
+    const orderNumber = document.getElementById("orderNumber").textContent;
+
+    // snapshot dos itens antes de limpar carrinho
+    const itemsSnapshot = Object.values(cart).map(({ product, quantity }) => ({
+      name: product.name,
+      price: product.price,
+      quantity,
+      subtotal: product.price * quantity,
+    }));
+
+    // label bonitinho da retirada
+    const pickupLabel =
+      pickup === "mesa" && tableNumber
+        ? `Mesa ${tableNumber}`
+        : pickup.charAt(0).toUpperCase() + pickup.slice(1);
+
+    // texto completo do pedido
     const orderText = generateOrderText({
       name,
       note,
       pickupOption: pickup,
       tableNumber,
     });
+    lastOrderText = orderText;
 
-    const orderResult = document.getElementById("orderResult");
     const orderTextArea = document.getElementById("orderText");
     orderTextArea.value = orderText;
-    orderResult.style.display = "flex";
 
-    // Se quiser abrir direto o WhatsApp depois, descomenta:
+    // preenche view de sucesso (aquela que você já tem)
+    document.getElementById(
+      "successOrderNumber"
+    ).textContent = `#${orderNumber}`;
+    document.getElementById("successCustomerName").textContent = name;
+    document.getElementById("successTotal").textContent = formatCurrency(total);
+    document.getElementById("successPickup").textContent = pickupLabel;
+
+    const checkoutView = document.getElementById("checkoutView");
+    const successView = document.getElementById("successView");
+    checkoutView.style.display = "none";
+    successView.classList.add("active");
+
+    // salva no histórico
+    ordersHistory.unshift({
+      id: orderNumber,
+      customerName: name,
+      total,
+      pickupLabel,
+      note,
+      datetime: new Date().toISOString(),
+      items: itemsSnapshot,
+      text: orderText,
+    });
+    renderOrdersList();
+
+    // zera carrinho
+    cart = {};
+    renderCart();
+
+    const modalElement = document.querySelector(".modal");
+    if (modalElement && modalElement.scrollTo) {
+      modalElement.scrollTo(0, 0);
+    }
+
+    // se quiser abrir o Whats automaticamente, descomenta:
     if (CONFIG.whatsappNumber) {
       const url = `https://wa.me/${
         CONFIG.whatsappNumber
       }?text=${encodeURIComponent(orderText)}`;
       window.open(url, "_blank");
     }
-
-    cart = {};
-    renderCart();
   });
 
+  // copiar texto do pedido
   copyOrderTextButton.addEventListener("click", async () => {
-    const orderTextArea = document.getElementById("orderText");
     try {
-      await navigator.clipboard.writeText(orderTextArea.value);
+      await navigator.clipboard.writeText(lastOrderText);
       copyOrderTextButton.textContent = "Copiado!";
       setTimeout(() => {
         copyOrderTextButton.textContent = "Copiar pedido";
@@ -421,4 +504,126 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Erro ao copiar:", err);
     }
   });
+
+  // abre modal de histórico
+  openOrdersButton.addEventListener("click", () => {
+    ordersModal.classList.add("open");
+    renderOrdersList();
+  });
+
+  // fecha modal de histórico
+  closeOrders.addEventListener("click", () => {
+    ordersModal.classList.remove("open");
+  });
+
+  // clicar fora fecha modal de histórico
+  ordersModal.addEventListener("click", (e) => {
+    if (e.target === ordersModal) {
+      ordersModal.classList.remove("open");
+    }
+  });
 });
+
+const renderOrdersList = () => {
+  const listEl = document.getElementById("ordersList");
+  const detailEl = document.getElementById("ordersDetail");
+  if (!listEl || !detailEl) return;
+
+  listEl.innerHTML = "";
+
+  if (ordersHistory.length === 0) {
+    listEl.innerHTML =
+      '<p class="orders-empty">Nenhum pedido registrado ainda.</p>';
+    detailEl.innerHTML =
+      '<p class="orders-empty">Selecione um pedido para ver o resumo.</p>';
+    return;
+  }
+
+  ordersHistory.forEach((order, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "order-row";
+    btn.innerHTML = `
+      <div class="order-row-main">
+        <span class="order-row-id">#${order.id}</span>
+        <span class="order-row-name">${order.customerName}</span>
+      </div>
+      <div class="order-row-meta">
+        <span>${formatDateTime(order.datetime)}</span>
+        <span>${formatCurrency(order.total)}</span>
+      </div>
+    `;
+    btn.addEventListener("click", () => showOrderDetail(order));
+    listEl.appendChild(btn);
+
+    // seleciona o primeiro por padrão
+    if (index === 0) {
+      showOrderDetail(order);
+    }
+  });
+};
+
+const showOrderDetail = (order) => {
+  const detailEl = document.getElementById("ordersDetail");
+  if (!detailEl) return;
+
+  const itemsHtml =
+    order.items && order.items.length
+      ? `<ul>${order.items
+          .map(
+            (item) =>
+              `<li>${item.quantity}x ${item.name} — ${formatCurrency(
+                item.subtotal
+              )}</li>`
+          )
+          .join("")}</ul>`
+      : '<p class="orders-empty">Sem itens registrados.</p>';
+
+  detailEl.innerHTML = `
+    <h3>Resumo do pedido</h3>
+    <div class="success-summary">
+      <div class="success-row">
+        <span>Pedido:</span>
+        <span>#${order.id}</span>
+      </div>
+      <div class="success-row">
+        <span>Cliente:</span>
+        <span>${order.customerName}</span>
+      </div>
+      <div class="success-row">
+        <span>Total:</span>
+        <span>${formatCurrency(order.total)}</span>
+      </div>
+      <div class="success-row">
+        <span>Retirada:</span>
+        <span>${order.pickupLabel}</span>
+      </div>
+    </div>
+
+    <div class="orders-items">
+      <h4>Itens</h4>
+      ${itemsHtml}
+    </div>
+
+    <div class="modal-actions" style="margin-top:10px;justify-content:flex-start;">
+      <button type="button" class="btn-outline" id="copyOrderFromHistory">
+        Copiar pedido
+      </button>
+    </div>
+  `;
+
+  const copyBtn = document.getElementById("copyOrderFromHistory");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(order.text);
+        copyBtn.textContent = "Copiado!";
+        setTimeout(() => {
+          copyBtn.textContent = "Copiar pedido";
+        }, 1500);
+      } catch (err) {
+        console.error("Erro ao copiar:", err);
+      }
+    });
+  }
+};

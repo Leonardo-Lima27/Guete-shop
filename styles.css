@@ -105,9 +105,9 @@ body {
 
 .brand-text h1 {
   margin: 0;
-  font-size: 21px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .brand-text span {
@@ -164,9 +164,12 @@ body {
   gap: 6px;
 }
 
-.products-header h2 {
+.products-header h2,
+.cart-section h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .category-filters {
@@ -226,7 +229,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  cursor: pointer;
+  cursor: default;
   position: relative;
   overflow: hidden;
   transition: transform 0.12s ease, box-shadow 0.12s ease,
@@ -261,6 +264,33 @@ body {
 
 .product-card:hover::before {
   opacity: 1;
+}
+
+/* Card em destaque (Moran-Guete) */
+.product-card-featured {
+  border-color: rgba(56, 189, 248, 0.95);
+  box-shadow: 0 22px 60px rgba(56, 189, 248, 0.35);
+  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.18), #020617);
+  transform: translateY(-2px);
+}
+
+.product-card-featured .product-image {
+  border-color: rgba(139, 92, 246, 0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.22),
+    rgba(139, 92, 246, 0.3)
+  );
+}
+
+.product-card-featured .product-tag {
+  border-color: rgba(56, 189, 248, 0.9);
+  color: #e0f2fe;
+}
+
+/* Quando passa o mouse, aumenta um pouquinho mais */
+.product-card-featured:hover {
+  transform: translateY(-4px);
 }
 
 .product-tag {
@@ -299,12 +329,13 @@ body {
 }
 
 .product-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .product-description {
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.35;
   color: var(--text-soft);
 }
 
@@ -358,11 +389,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.cart-section h2 {
-  margin: 0;
-  font-size: 18px;
 }
 
 .cart-items {
@@ -567,7 +593,10 @@ body {
 
 .modal {
   width: 100%;
-  max-width: 430px;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+
   background: #020617;
   border-radius: 24px;
   border: 1px solid rgba(51, 65, 85, 0.9);
@@ -576,6 +605,203 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-main {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Modal de histórico de pedidos */
+.orders-modal {
+  max-width: 720px;
+}
+
+.orders-layout {
+  margin-top: 10px;
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.orders-list {
+  flex: 1;
+  min-width: 0;
+  border-radius: 14px;
+  background: #020617;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.orders-detail {
+  flex: 1.2;
+  min-width: 0;
+  border-radius: 14px;
+  background: #020617;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  padding: 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.orders-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+/* cada linha de pedido da lista */
+.order-row {
+  border-radius: 10px;
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  background: #020617;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    transform 0.08s ease;
+}
+
+.order-row:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(56, 189, 248, 0.85);
+  transform: translateY(-1px);
+}
+
+.order-row-main {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.order-row-id {
+  font-weight: 600;
+}
+
+.order-row-name {
+  color: var(--text-soft);
+}
+
+.order-row-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+/* detalhe do pedido selecionado */
+.orders-detail h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.orders-detail h4 {
+  margin: 6px 0 2px;
+  font-size: 13px;
+}
+
+.orders-items {
+  margin-top: 4px;
+}
+
+.orders-items ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.orders-items li {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* ações do modal de histórico */
+.orders-actions {
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* responsivo */
+@media (max-width: 720px) {
+  .orders-layout {
+    flex-direction: column;
+  }
+}
+
+/* visão de sucesso (resumo) */
+.modal-success {
+  display: none; /* começa escondida */
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(51, 65, 85, 0.9);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-success.active {
+  display: flex;
+}
+
+.success-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #022c22;
+  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.6);
+}
+
+.modal-success h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.success-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.success-summary {
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #020617;
+  border: 1px dashed rgba(51, 65, 85, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.success-row span:first-child {
+  color: var(--text-soft);
 }
 
 .modal h2 {
@@ -693,6 +919,18 @@ select:focus {
   }
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-orders-button {
+  padding-inline: 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 @media (max-width: 600px) {
   .app {
     padding: 12px;
@@ -706,4 +944,12 @@ select:focus {
   .products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.product-add,
+.btn-circle {
+  cursor: pointer;
 }
